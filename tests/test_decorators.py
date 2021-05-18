@@ -5,7 +5,6 @@ import sys
 from unittest.mock import MagicMock
 
 import tornado.web
-import tornado.web
 from tornado.testing import AsyncTestCase
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(os.path.dirname(__file__))))
