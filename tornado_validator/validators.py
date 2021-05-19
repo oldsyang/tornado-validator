@@ -6,6 +6,9 @@ import re
 
 from tornado.httputil import HTTPFile as File
 
+from . import status
+from .exceptions import ValidationError
+
 try:
     from gettext import gettext, ngettext
 except ImportError:
@@ -20,9 +23,6 @@ except ImportError:
 
 _ = gettext
 
-from . import status
-from .exceptions import ValidationError
-
 
 class ValidatorRegistry(object):
     """
@@ -35,8 +35,7 @@ class ValidatorRegistry(object):
     def register(cls, name, _class):
         """Register Converter in ConverterRegistry.
         Args:
-            name (str, iterable): Register key or name tuple.
-            _class (BaseConverter): Validator class.
+            name (str, iterable): Register key or name tuple._class (BaseConverter): Validator class.
         """
         if isinstance(name, (tuple, set, list)):
             for _name in name:
@@ -88,7 +87,8 @@ class BaseValidator(object):
     You can overwrite these params and functions:
     code: error_code in the raised error.
     message: error_message in the raised error.
-    nullable: when this param set to True, validator will skip when value is None.
+    nullable: when this param set to True,
+                validator will skip when value is None.
     clean: class will call this function to clean value before validate it.
     is_valid: you must overwrite this function to implement your logic.
     """
@@ -112,9 +112,16 @@ class BaseValidator(object):
             verbose_key = key
 
         cleaned = self.clean(value)
-        message_params = {'show_value': cleaned, 'value': value, 'key': verbose_key}
+        message_params = {
+            'show_value': cleaned,
+            'value': value,
+            'key': verbose_key}
         if not self.is_valid(cleaned, params):
-            raise ValidationError(self.message.format(**message_params), self.code, self.status_code)
+            raise ValidationError(
+                self.message.format(
+                    **message_params),
+                self.code,
+                self.status_code)
         return True
 
     def is_valid(self, value, params):
@@ -160,7 +167,9 @@ class RequiredWithValidator(BaseValidator):
     def __init__(self, other, message=None):
         super(RequiredWithValidator, self).__init__(message)
         self.other = other
-        self.message = _('The {{key}} is required with {other}'.format(other=other))
+        self.message = _(
+            'The {{key}} is required with {other}'.format(
+                other=other))
 
     def is_valid(self, value, params):
         if params.get(self.other) is not None:
@@ -179,7 +188,9 @@ class RequiredWithoutValidator(BaseValidator):
     def __init__(self, other, message=None):
         super(RequiredWithoutValidator, self).__init__(message)
         self.other = other
-        self.message = _('The {{key}} is required without {other}'.format(other=other))
+        self.message = _(
+            'The {{key}} is required without {other}'.format(
+                other=other))
 
     def is_valid(self, value, params):
         if params.get(self.other) is None:
@@ -200,8 +211,8 @@ class RequiredIfValidator(BaseValidator):
         self.other = other
         self.other_value = other_value
         self.message = _(
-            'The {{key}} is required when {other} is {other_value}'.format(other=other, other_value=other_value)
-        )
+            'The {{key}} is required when {other} is {other_value}'.format(
+                other=other, other_value=other_value))
 
     def is_valid(self, value, params):
         other_value = params.get(self.other)
@@ -223,13 +234,19 @@ class MinValidator(BaseValidator):
 
     def is_valid(self, value, params):
         if isinstance(value, str):
-            self.message = _('The {{key}} must be at least {min} characters.').format(min=self.min_value)
+            self.message = _(
+                'The {{key}} must be at least {min} characters.'
+            ).format(
+                min=self.min_value)
             return len(value) >= self.min_value
         elif isinstance(value, File):
-            self.message = _('The {{key}} must be at least {min} bytes.'.format(min=self.min_value))
+            self.message = _(
+                'The {{key}} must be at least {min} bytes.'.format(
+                    min=self.min_value))
             return len(value.body) >= self.min_value
         else:
-            self.message = _('The {{key}} must be at least {min}.').format(min=self.min_value)
+            self.message = _('The {{key}} must be at least {min}.').format(
+                min=self.min_value)
             return value >= self.min_value
 
 
@@ -245,13 +262,20 @@ class MaxValidator(BaseValidator):
 
     def is_valid(self, value, params):
         if isinstance(value, str):
-            self.message = _('The {{key}} may not be greater than {max} characters.').format(max=self.max_value)
+            self.message = _(
+                'The {{key}} may not be greater than {max} characters.'
+            ).format(
+                max=self.max_value)
             return len(value) <= self.max_value
         elif isinstance(value, File):
-            self.message = _('The {{key}} must not be at greater {max} bytes.'.format(max=self.max_value))
+            self.message = _(
+                'The {{key}} must not be at greater {max} bytes.'.format(
+                    max=self.max_value))
             return len(value.body) <= self.max_value
         else:
-            self.message = _('The {{key}} may not be greater than {max}.').format(max=self.max_value)
+            self.message = _(
+                'The {{key}} may not be greater than {max}.').format(
+                max=self.max_value)
             return value <= self.max_value
 
 
@@ -268,22 +292,22 @@ class BetweenValidator(BaseValidator):
 
     def is_valid(self, value, params):
         if isinstance(value, str):
-            self.message = _('The {{key}} must be between {min} and {max} characters.').format(
-                min=self.min_value,
-                max=self.max_value
-            )
+            self.message = _(
+                'The {{key}} must be between {min} and {max} characters.'
+            ).format(
+                min=self.min_value, max=self.max_value)
             return self.min_value <= len(value) <= self.max_value
         elif isinstance(value, File):
-            self.message = _('The {{key}} must be between {min} and {max} bytes.').format(
-                min=self.min_value,
-                max=self.max_value
-            )
+            self.message = _(
+                'The {{key}} must be between {min} and {max} bytes.'
+            ).format(
+                min=self.min_value, max=self.max_value)
             return self.min_value <= len(value.body) <= self.max_value
         else:
-            self.message = _('The {{key}} must be between {min} and {max}.').format(
-                min=self.min_value,
-                max=self.max_value
-            )
+            self.message = _(
+                'The {{key}} must be between {min} and {max}.'
+            ).format(
+                min=self.min_value, max=self.max_value)
             return self.min_value <= value <= self.max_value
 
 
@@ -320,7 +344,7 @@ class IntegerValidator(BaseRegexValidator):
     """
     code = 'integer_validator'
     message = _('The {key} must be an integer.')
-    regex = re.compile('^-?\d+\Z')
+    regex = re.compile('^-?\\d+\\Z')
 
     def __init__(self, message=None):
         super(IntegerValidator, self).__init__(message)
@@ -332,7 +356,7 @@ class NumericValidator(BaseRegexValidator):
     """
     code = 'numeric_validator'
     message = _('The {key} must be a number.')
-    regex = re.compile('^-?\d*(\.\d+)?(e-?\d+)?\Z')
+    regex = re.compile('^-?\\d*(\\.\\d+)?(e-?\\d+)?\\Z')
 
     def __init__(self, message=None):
         super(NumericValidator, self).__init__(message)
@@ -378,7 +402,10 @@ class ExtInValidator(BaseValidator):
     def __init__(self, *choices):
         super(ExtInValidator, self).__init__()
         choices = [choice.lower() for choice in choices]
-        self.choices = {choice if choice.startswith('.') else '.' + choice for choice in choices}
+        self.choices = {
+            choice if choice.startswith('.')
+            else '.' + choice for choice in choices
+        }
 
     def clean(self, value):
         _, ext = os.path.splitext(value.name)

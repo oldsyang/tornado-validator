@@ -23,7 +23,8 @@ class _ValidationError(Exception):
             elif not hasattr(message, 'message'):
                 message = message.error_list
             else:
-                message, code, params = message.message, message.code, message.params
+                message, code, params = message.message, message.code, \
+                    message.params
 
         if isinstance(message, dict):
             self.error_dict = {}
@@ -39,7 +40,8 @@ class _ValidationError(Exception):
                 if not isinstance(message, ValidationError):
                     message = ValidationError(message)
                 if hasattr(message, 'error_dict'):
-                    self.error_list.extend(sum(message.error_dict.values(), []))
+                    self.error_list.extend(
+                        sum(message.error_dict.values(), []))
                 else:
                     self.error_list.extend(message.error_list)
 
@@ -97,7 +99,11 @@ class ValidationError(_ValidationError):
     """
     code = ''
 
-    def __init__(self, detail, code=None, status_code=status.HTTP_400_BAD_REQUEST):
+    def __init__(
+            self,
+            detail,
+            code=None,
+            status_code=status.HTTP_400_BAD_REQUEST):
         super(ValidationError, self).__init__(detail)
         self.code = code
         self.status_code = status_code

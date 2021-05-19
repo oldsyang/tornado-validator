@@ -1,4 +1,4 @@
 -r base.txt
 
-pep8
+pycodestyle
 ddt

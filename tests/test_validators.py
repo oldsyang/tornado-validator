@@ -1,10 +1,5 @@
-import os
-import sys
-
 import ddt
 from tornado.testing import AsyncTestCase
-
-sys.path.insert(0, os.path.dirname(os.path.abspath(os.path.dirname(__file__))))
 
 from tornado_validator.validators import *
 
@@ -97,10 +92,10 @@ class ValidatorTest(AsyncTestCase):
         (BetweenValidator(5, 10), False, 'test'),
         (BetweenValidator(5, 10), False, 't' * 20),
         # Regex
-        (RegexValidator('^\w+$'), True, None),
-        (RegexValidator('^\w+$'), True, 'abc'),
-        (RegexValidator('^\w+$'), False, ''),
-        (RegexValidator('^\w+$'), False, '#abc'),
+        (RegexValidator('^\\w+$'), True, None),
+        (RegexValidator('^\\w+$'), True, 'abc'),
+        (RegexValidator('^\\w+$'), False, ''),
+        (RegexValidator('^\\w+$'), False, '#abc'),
         # Integer
         (IntegerValidator(), True, None),
         (IntegerValidator(), True, '1'),
@@ -146,10 +141,20 @@ class ValidatorTest(AsyncTestCase):
         if valid:
             self.assertTrue(self._validator(validator, value, other))
         else:
-            self.assertRaises(ValidationError, self._validator, validator, value, other)
+            self.assertRaises(
+                ValidationError,
+                self._validator,
+                validator,
+                value,
+                other)
 
     def test_verbose_key(self):
         """ Test if the verbose key can throw from the validation error. """
         validator = RequiredValidator()
-        self.assertRaisesRegexp(ValidationError, 'TEST_VERBOSE_KEY', self._validator, validator,
-                                None, verbose_key='TEST_VERBOSE_KEY')
+        self.assertRaisesRegexp(
+            ValidationError,
+            'TEST_VERBOSE_KEY',
+            self._validator,
+            validator,
+            None,
+            verbose_key='TEST_VERBOSE_KEY')

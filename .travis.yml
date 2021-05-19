@@ -7,9 +7,12 @@ branches:
 python:
  - "3.5"
 
+before_install:
+  - chmod -R +x scripts/test.sh
+
 install:
  - pip install -q -r requirements/test.txt
 
 script:
- - pep8 .
+ - pycodestyle .
  - scripts/test.sh

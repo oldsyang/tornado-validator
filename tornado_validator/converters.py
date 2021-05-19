@@ -1,6 +1,7 @@
 """Module that provides the default converters and converter registry.
 Converters will be auto registered in the ConverterRegistry
-If you haven't specify the name attribute in Meta class, registry will auto use the class name.
+If you haven't specify the name attribute in Meta
+class, registry will auto use the class name.
 Example:
     class ConverterExample(BaseConverter):
         @staticmethod
@@ -8,7 +9,8 @@ Example:
             pass
         class Meta:
             name = ('example', )
-But if you can't auto import the converter class, you can register the converter manually.
+But if you can't auto import the converter
+class, you can register the converter manually.
 Example:
     ConverterExample.register()
     ConverterExample.register('example')
@@ -23,7 +25,6 @@ try:
 except ImportError:
     def gettext(message):
         return message
-
 
     def ngettext(singular, plural, n):
         if n == 1:
@@ -63,7 +64,13 @@ class ConverterMetaClass(type):
     """
 
     def __new__(cls, name, bases, attributes):
-        _class = super(ConverterMetaClass, cls).__new__(cls, name, bases, attributes)
+        _class = super(
+            ConverterMetaClass,
+            cls).__new__(
+            cls,
+            name,
+            bases,
+            attributes)
         attr_meta = attributes.pop('Meta', None)
         abstract = getattr(attr_meta, 'abstract', False)
         if not abstract:
@@ -85,7 +92,8 @@ class BaseConverter(metaclass=ConverterMetaClass):
     def register(cls, name=None):
         """Register this converter to registry.
         Attributes:
-            name (Optinal[str, iterable]): Name that used to register in registry.
+            name (Optinal[str, iterable]): Name that used to
+                register in registry.
                 Defaults to the name in Meta class.
         """
         if name is None:
@@ -96,8 +104,10 @@ class BaseConverter(metaclass=ConverterMetaClass):
     class Meta:
         """Meta class of Converter
         Attributes:
-            abstract (bool): Class will not auto register if this attribute is True.
-            name (Optional[str, iterable]): Name that used to auto register in registry.
+            abstract (bool): Class will not auto register
+                            if this attribute is True.
+            name (Optional[str, iterable]): Name that used
+            to auto register in registry.
         """
         abstract = True
 
@@ -156,7 +166,8 @@ class BooleanConverter(BaseConverter):
     Convert the value to a boolean value.
     """
 
-    # Set is the faster than tuple and list, but False is equals 0 in set structure.
+    # Set is the faster than tuple and list, but False is equals 0 in set
+    # structure.
     false_values = {None, False, 'false', 'False', 0, '0'}
 
     @staticmethod
@@ -186,7 +197,7 @@ class DateValidator(BaseRegexValidator):
     """
     code = 'numeric_validator'
     message = _('The {key} must be a yyyy-MM-dd or yyyy-M-d.')
-    regex = re.compile('(\d{4}-\d{1,2}-\d{1,2})')
+    regex = re.compile('(\\d{4}-\\d{1,2}-\\d{1,2})')
 
     def __init__(self, message=None):
         super(DateValidator, self).__init__(message)

@@ -1,13 +1,13 @@
-import os
-import sys
-
 import ddt
 from tornado.testing import AsyncTestCase
 
-sys.path.insert(0, os.path.dirname(os.path.abspath(os.path.dirname(__file__))))
-
-from tornado_validator.converters import ConverterRegistry, BaseConverter, StringConverter, IntegerConverter, \
-    BooleanConverter, FloatConverter
+from tornado_validator.converters import (
+    BaseConverter,
+    BooleanConverter,
+    ConverterRegistry,
+    FloatConverter,
+    IntegerConverter,
+    StringConverter)
 
 
 @ddt.ddt
@@ -27,9 +27,13 @@ class ConverterTests(AsyncTestCase):
     @ddt.unpack
     def test_registry(self, first, second, equals):
         if equals:
-            self.assertEqual(ConverterRegistry.get(first), ConverterRegistry.get(second))
+            self.assertEqual(
+                ConverterRegistry.get(first),
+                ConverterRegistry.get(second))
         else:
-            self.assertNotEqual(ConverterRegistry.get(first), ConverterRegistry.get(second))
+            self.assertNotEqual(
+                ConverterRegistry.get(first),
+                ConverterRegistry.get(second))
 
     def test_auto_register(self):
         """

@@ -7,7 +7,10 @@ from .validators import ValidatorRegistry
 
 
 def get_body(request):
-    post_data = {x: vals[0].decode("utf-8") for x, vals in request.body_arguments.items()}
+    post_data = {
+        x: vals[0].decode("utf-8")
+        for x, vals in request.body_arguments.items()
+    }
     if not post_data:
         post_data = request.body.decode('utf-8')
         post_data = json.loads(post_data) if post_data else dict()
@@ -37,7 +40,8 @@ def _file_lookup(_decorator, request, name, default, kwargs):
 
 def _post_or_get_lookup(_decorator, request, name, default, kwargs):
     value = _post_lookup(_decorator, request, name, None, kwargs)
-    return value if value is not None else _get_lookup(_decorator, request, name, default, kwargs)
+    return value if value is not None else _get_lookup(
+        _decorator, request, name, default, kwargs)
 
 
 def _header_lookup(_decorator, request, name, default, kwargs):
@@ -52,15 +56,43 @@ def _uri_lookup(_decorator, request, name, default, kwargs):
     return kwargs.get(name, default)
 
 
-def param(name, related_name=None, verbose_name=None, default=None, type='string', lookup=_get_lookup, many=False,
-          separator=',', validators=None, validator_classes=None):
-    return _Param(name, related_name, verbose_name, default, type, lookup, many, separator, validators,
-                  validator_classes)
+def param(
+        name,
+        related_name=None,
+        verbose_name=None,
+        default=None,
+        type='string',
+        lookup=_get_lookup,
+        many=False,
+        separator=',',
+        validators=None,
+        validator_classes=None):
+    return _Param(
+        name,
+        related_name,
+        verbose_name,
+        default,
+        type,
+        lookup,
+        many,
+        separator,
+        validators,
+        validator_classes)
 
 
 class _Param(object):
-    def __init__(self, name, related_name, verbose_name, default, type, lookup, many, separator, validators,
-                 validator_classes):
+    def __init__(
+            self,
+            name,
+            related_name,
+            verbose_name,
+            default,
+            type,
+            lookup,
+            many,
+            separator,
+            validators,
+            validator_classes):
         self.name = name
         self.related_name = related_name if related_name else name
         self.verbose_name = verbose_name if verbose_name else name
@@ -93,12 +125,19 @@ class _Param(object):
                 # Checkout all the params first.
                 for _param in _decorator.__params__:
                     _param._parse(_decorator, request, kwargs)
-                # Validate after all the params has checked out, because some validators needs all the params.
+                # Validate after all the params has checked out, because some
+                # validators needs all the params.
                 for _param in _decorator.__params__:
                     for validator in _param.validators:
-                        validator(_param.related_name, kwargs, _param.verbose_name)
+                        validator(
+                            _param.related_name,
+                            kwargs,
+                            _param.verbose_name)
 
-                for _val in ['_val_body_data', '_val_body_file', '_val_headers']:
+                for _val in [
+                    '_val_body_data',
+                    '_val_body_file',
+                        '_val_headers']:
                     try:
                         delattr(_decorator, _val)
                     except Exception as e:
@@ -110,7 +149,12 @@ class _Param(object):
 
     def _parse(self, _decorator, request, kwargs):
         converter = ConverterRegistry.get(self.type)
-        value = self.lookup(_decorator, request, self.name, self.default, kwargs)
+        value = self.lookup(
+            _decorator,
+            request,
+            self.name,
+            self.default,
+            kwargs)
         try:
             if self.many:
                 if isinstance(value, str):
@@ -119,7 +163,10 @@ class _Param(object):
                     values = []
                 else:
                     values = value
-                converted_value = [converter.convert(self.name, _value) for _value in values]
+                converted_value = [
+                    converter.convert(
+                        self.name,
+                        _value) for _value in values]
             else:
                 converted_value = converter.convert(self.name, value)
         except ValidationError as e:
